@@ -88,8 +88,12 @@ a {
     border-top: 1px solid whitesmoke;
     width: 100vw;
     background: whitesmoke;
-    
+}
 
+#mycanvas{
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 

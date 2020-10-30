@@ -8,10 +8,21 @@
     <link rel="stylesheet" href="views/css/estilos.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;600&display=swap" rel="stylesheet">
     <script src="bootstrap/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="views/js/p5.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+   
 </head>
 <body>
+    <style>
+        #display{
+            position:fixed;
+            width:100px;
+            height:100px;
+            top:100px;
+            left:20px;
+        }
+    </style>
     <div id="nav3">
         <nav>
             <ul>
@@ -25,15 +36,63 @@
         </nav>
     </div>
 <br>
+<div class="contenedorCanvas" style="position:absolute; top:50%;left:50%;transform: translate(-50%,-50%);">
+    <canvas id="mycanvas" style="z-index: 10;"></canvas>
+</div>
+<div id="display" style="width:100px;height:100px; z-index: 10;"></div>
 
-<canvas id="defaultCanvas0" class="p5Canvas" width="1736" height="800" style="width: 868px; height: 400px;"></canvas>
-    
+
     <div id="footer">
             <h5>© BRUNOVIDAL 2020</h5>
     </div>
 
    <script src="views/js/main.js"></script>
+   <script>
+    $(document).ready(function() {
+        let canvas = $("#mycanvas").get(0)
+        let context = canvas.getContext("2d")
+        let image = new Image()
+        image.src = "views/img/brs.jpg"
+        //context.drawImage(image, 0, 0)
+        context.canvas.height = image.naturalHeight;
+        context.canvas.width = image.naturalWidth;
+        
+        
+        $(image).on('load',()=> {
+            context.drawImage(image, 0, 0)
+        });
 
+        $(".contenedorCanvas").height(image.naturalHeight);
+        $(".contenedorCanvas").width(image.naturalWidth);        
+        
+
+        $("canvas").click(function(event){
+            let canvasGap = $("canvas").offset()
+            // canvasGap guarda la brecha entre el canvas en el eje x e y 
+            let actualX = Math.floor(event.pageX - canvasGap.left)
+            let actualY = Math.floor(event.pageY - canvasGap.top)
+            
+            let pixelData = context.getImageData(actualX, actualY, 5, 5)
+            console.log(pixelData)
+            let data = pixelData.data
+            console.log(data)
+            // data es una variable que almacena una matriz unidimencional
+            
+            let color = colorPromedio(data)            
+
+            $("#display").css("background", color)
+        })
+
+        function colorPromedio(data){
+            // Por ahora esta escribiendo el primer pixel
+            let pixelColor = "rgba(" + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + ")"
+            // Aquí se hará un promedio entre los colores de la matriz 
+            return pixelColor //Se devuelve el color en RGBA
+        }
+    })
+
+        
+</script>
 
 </body>
 </html>
