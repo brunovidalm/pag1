@@ -20,7 +20,7 @@
             width:100px;
             height:100px;
             top:200px;
-            left:20px;
+            right:20px;
         }
 
         #display-2{
@@ -28,7 +28,17 @@
             width:100px;
             height:100px;
             top:600px;
-            left:20px;
+            right:20px;
+        }
+        #imagen-f{
+            margin-top: 300px;
+            margin-left: 20px;
+        }
+        .cuadro-texto{
+            position:absolute;
+            top:360px;
+            left:30px;
+            width: 300px;
         }
     </style>
     <div id="nav3">
@@ -48,11 +58,12 @@
 <div class="contenedorCanvas" style="position:absolute; top:50%;left:50%;transform: translate(-50%,-50%);">
     <canvas id="mycanvas" style="z-index: 10;"></canvas>
 </div>
-<br><br><br>
-<h1 style="padding-left: 10px;">Color Dominante</h1>
-<input type="file" name="imagen-f" id="imagen-f">
-<div id="display" style="width:200px;height:200px; z-index: 10;"></div>
-<div id="display-2" style="width:200px;height:200px; z-index: 10;"></div>
+<img style="margin-top:-80px;" class="image-fluid" src="views/img/PRINCIPALES.png" alt=""><br>
+<div class="cuadro-texto"><h4>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Obcaecati, ab, reprehenderit id quod delectus est autem nisi quas architecto a blanditiis quam exercitationem, debitis officiis cupiditate consequatur expedita aliquam quos!</h4></div>
+<input class="noDisplay" type="file" id="imagen-f">
+<div id="display" style="width:200px;height:200px; z-index: 10;"><h3 style="margin-top: -70px;">Color selección</h3></div>
+<div id="display-2" style="width:200px;height:200px; z-index: 10;"><h3 style="margin-top: -70px;">Color imagen</h3></div>
+<div class="noDisplay" style="width:200px;height:200px; z-index: 10;" id="preview"></div>
 
 
 
@@ -121,9 +132,13 @@
             let color = colorPromedio(data)            
 
             $("#display").css("background", color)
-            $("#display").html(color)
+            
 
         })
+
+
+        
+
 
         function colorPromedio(data){
 
@@ -165,15 +180,17 @@
 
         $(document).on('change','#imagen-f', function(){
             var imagen = this.files[0]
-            
-
+          
             let canvas = $("#mycanvas").get(0)
         let context = canvas.getContext("2d")
         let image = new Image()
         let imagen_Url = URL.createObjectURL(imagen)
 
+        $("#preview").css("background-image","url("+imagen_Url+")")
+        
         console.log(imagen_Url)
         image.src = imagen_Url
+
         //context.drawImage(image, 0, 0)
         context.canvas.height = image.naturalHeight;
         context.canvas.width = image.naturalWidth;
