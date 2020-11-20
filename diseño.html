@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="views/css/estilos.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;600&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="views/js/p5.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
    
 </head>
@@ -19,8 +19,26 @@
             position:fixed;
             width:100px;
             height:100px;
-            top:100px;
-            left:20px;
+            top:200px;
+            right:20px;
+        }
+
+        #display-2{
+            position:fixed;
+            width:100px;
+            height:100px;
+            top:600px;
+            right:20px;
+        }
+        #imagen-f{
+            margin-top: 300px;
+            margin-left: 20px;
+        }
+        .cuadro-texto{
+            position:absolute;
+            top:360px;
+            left:30px;
+            width: 300px;
         }
     </style>
     <div id="nav3">
@@ -36,10 +54,17 @@
         </nav>
     </div>
 <br>
+<div class="cursor noDisplay"></div>
 <div class="contenedorCanvas" style="position:absolute; top:50%;left:50%;transform: translate(-50%,-50%);">
     <canvas id="mycanvas" style="z-index: 10;"></canvas>
 </div>
-<div id="display" style="width:100px;height:100px; z-index: 10;"></div>
+<img style="margin-top:-80px;" class="image-fluid" src="views/img/PRINCIPALES.png" alt=""><br>
+<div class="cuadro-texto"><h4>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Obcaecati, ab, reprehenderit id quod delectus est autem nisi quas architecto a blanditiis quam exercitationem, debitis officiis cupiditate consequatur expedita aliquam quos!</h4></div>
+<input class="noDisplay" type="file" id="imagen-f">
+<div id="display" style="width:200px;height:200px; z-index: 10;"><h3 style="margin-top: -70px;">Color selección</h3></div>
+<div id="display-2" style="width:200px;height:200px; z-index: 10;"><h3 style="margin-top: -70px;">Color imagen</h3></div>
+<div class="noDisplay" style="width:200px;height:200px; z-index: 10;" id="preview"></div>
+
 
 
     <div id="footer">
@@ -56,39 +81,143 @@
         //context.drawImage(image, 0, 0)
         context.canvas.height = image.naturalHeight;
         context.canvas.width = image.naturalWidth;
+
+       
         
         
         $(image).on('load',()=> {
             context.drawImage(image, 0, 0)
         });
 
+        setTimeout( () => {
+            let pixelDataImagen = context.getImageData(0, 0, image.naturalWidth, image.naturalHeight)
+            let DataImagen = pixelDataImagen.data
+
+            let promedio = colorPromedio(DataImagen)
+
+            $("#display-2").css("background", promedio)
+
+            
+
+        },1000)
+
         $(".contenedorCanvas").height(image.naturalHeight);
         $(".contenedorCanvas").width(image.naturalWidth);        
+        
         
 
         $("canvas").click(function(event){
             let canvasGap = $("canvas").offset()
             // canvasGap guarda la brecha entre el canvas en el eje x e y 
+
+            //Solicitamos la posicion en x e y actual de la página para dibujar cuadrado.
+            let actualXGlobal = Math.floor(event.pageX)
+            let actualYGlobal = Math.floor(event.pageY)
+
+            $(".cursor").removeClass("noDisplay")
+            $(".cursor").css("top", actualYGlobal + "px")
+            $(".cursor").css("left", actualXGlobal + "px")
+
+            
+
             let actualX = Math.floor(event.pageX - canvasGap.left)
             let actualY = Math.floor(event.pageY - canvasGap.top)
             
-            let pixelData = context.getImageData(actualX, actualY, 5, 5)
-            console.log(pixelData)
+            let pixelData = context.getImageData(actualX-50, actualY-50, 100, 100)
+
             let data = pixelData.data
-            console.log(data)
+            
             // data es una variable que almacena una matriz unidimencional
             
             let color = colorPromedio(data)            
 
             $("#display").css("background", color)
+            
+
         })
 
+
+        
+
+
         function colorPromedio(data){
-            // Por ahora esta escribiendo el primer pixel
-            let pixelColor = "rgba(" + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + ")"
+
+
+            largoMatriz = data.length
+
+            cantidadPixeles = largoMatriz/4
+
+            sumaR = 0
+            for (let i = 0; i< largoMatriz; i+=4){
+                sumaR += parseInt(data[i])              
+            }
+            promedioR = sumaR/cantidadPixeles
+
+            sumaG = 0
+            for (let i = 1; i< largoMatriz; i+=4){
+                sumaG += parseInt(data[i])              
+            }
+            promedioG = sumaG/cantidadPixeles
+
+            sumaB = 0
+            for (let i = 2; i< largoMatriz; i+=4){
+                sumaB += parseInt(data[i])              
+            }
+            promedioB = sumaB/cantidadPixeles
+
+            sumaA = 0
+            for (let i = 3; i< largoMatriz; i+=4){
+                sumaA += parseInt(data[i])              
+            }
+            promedioA = sumaA/cantidadPixeles
+
+            console.log("PromedioR",promedioR," PromedioG", promedioG, " PromedioB", promedioB, " PromedioA", promedioA)
+
+            let pixelColor = "rgba(" + promedioR + "," + promedioG + "," + promedioB + "," + promedioA+ ")"
             // Aquí se hará un promedio entre los colores de la matriz 
             return pixelColor //Se devuelve el color en RGBA
         }
+
+        $(document).on('change','#imagen-f', function(){
+            var imagen = this.files[0]
+          
+            let canvas = $("#mycanvas").get(0)
+        let context = canvas.getContext("2d")
+        let image = new Image()
+        let imagen_Url = URL.createObjectURL(imagen)
+
+        $("#preview").css("background-image","url("+imagen_Url+")")
+        
+        console.log(imagen_Url)
+        image.src = imagen_Url
+
+        //context.drawImage(image, 0, 0)
+        context.canvas.height = image.naturalHeight;
+        context.canvas.width = image.naturalWidth;
+
+       
+        
+        
+        $(image).on('load',()=> {
+            context.drawImage(image, 0, 0)
+        });
+
+        setTimeout( () => {
+            let pixelDataImagen = context.getImageData(0, 0, image.naturalWidth, image.naturalHeight)
+            let DataImagen = pixelDataImagen.data
+
+            let promedio = colorPromedio(DataImagen)
+
+            $("#display-2").css("background", promedio)
+
+            
+
+        },1000)
+
+        $(".contenedorCanvas").height(image.naturalHeight);
+        $(".contenedorCanvas").width(image.naturalWidth);  
+
+        })
     })
 
         
